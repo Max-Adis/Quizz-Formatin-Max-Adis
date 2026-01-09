@@ -3,76 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Pack Découverte | Max Adis</title>
+    <title>Quiz Pack Découverte | Max_Adis</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #00d2ff; --secondary: #3a7bd5; --success: #2ecc71; --error: #e74c3c; --bg: #f4f7f6;
+            --primary: #00d2ff; --secondary: #3a7bd5; --success: #2ecc71; --error: #e74c3c;
         }
-        body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, var(--primary), var(--secondary)); min-height: 100vh; margin: 0; display: flex; justify-content: center; align-items: center; padding: 15px; }
-        .quiz-container { background: white; width: 100%; max-width: 600px; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-        
-        /* Barre de progression */
-        .progress-container { width: 100%; height: 8px; background: #eee; border-radius: 10px; margin-bottom: 25px; overflow: hidden; }
-        .progress-bar { height: 100%; background: var(--primary); width: 0%; transition: 0.4s; }
-        .step-text { font-size: 14px; color: #7f8c8d; font-weight: 600; margin-bottom: 10px; display: block; }
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background: linear-gradient(135deg, var(--primary), var(--secondary)); 
+            min-height: 100vh; margin: 0; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 15px; 
+            box-sizing: border-box;
+        }
 
-        h2 { font-size: 20px; color: #2c3e50; margin-bottom: 20px; }
-        .options { display: flex; flex-direction: column; gap: 10px; }
-        .option-btn { padding: 15px; border: 2px solid #edf2f7; border-radius: 12px; cursor: pointer; transition: 0.2s; background: white; text-align: left; font-size: 15px; }
+        /* Container Principal */
+        .quiz-container { 
+            background: white; width: 100%; max-width: 600px; padding: 40px; 
+            border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
+            text-align: center; /* Centrage global du contenu */
+        }
+
+        /* En-tête de la formation */
+        .header-title { color: #2c3e50; font-size: 24px; font-weight: 700; margin-bottom: 5px; }
+        .header-subtitle { color: var(--secondary); font-size: 16px; font-weight: 600; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Champs de saisie centrés */
+        .input-group { width: 100%; margin-bottom: 15px; text-align: center; }
+        input[type="text"], input[type="email"] { 
+            width: 90%; padding: 12px; border-radius: 8px; border: 2px solid #edf2f7; 
+            font-family: inherit; font-size: 15px; text-align: center; outline: none; transition: 0.3s;
+        }
+        input:focus { border-color: var(--primary); }
+
+        /* Barre de progression */
+        .progress-container { width: 100%; height: 8px; background: #eee; border-radius: 10px; margin: 20px 0; overflow: hidden; }
+        .progress-bar { height: 100%; background: var(--primary); width: 0%; transition: 0.4s; }
+        .step-text { font-size: 14px; color: #7f8c8d; font-weight: 600; }
+
+        h2 { font-size: 20px; color: #2c3e50; margin: 20px 0; }
+        
+        /* Options centrées */
+        .options { display: flex; flex-direction: column; gap: 12px; align-items: center; width: 100%; }
+        .option-btn { 
+            width: 100%; max-width: 450px; padding: 15px; border: 2px solid #edf2f7; 
+            border-radius: 12px; cursor: pointer; transition: 0.2s; background: white; 
+            font-size: 15px; font-weight: 400;
+        }
         .option-btn:hover { border-color: var(--primary); background: #f0fbff; }
         .option-btn.selected { border-color: var(--secondary); background: #e0f4ff; font-weight: 600; }
 
         .hidden { display: none; }
-        button#next-btn, button#submit-btn { width: 100%; margin-top: 25px; padding: 15px; background: var(--secondary); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: 600; }
         
-        /* Styles de la liste finale */
-        .result-item { padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 5px solid; }
+        button.main-btn { 
+            width: 100%; max-width: 450px; margin-top: 25px; padding: 15px; 
+            background: var(--secondary); color: white; border: none; 
+            border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: 600; 
+            transition: 0.3s;
+        }
+        button.main-btn:hover { background: #2a5fb1; transform: translateY(-2px); }
+
+        /* Liste de résultats */
+        .result-item { text-align: left; padding: 15px; border-radius: 10px; margin-bottom: 15px; border-left: 5px solid; }
         .res-correct { background: #d4edda; border-color: var(--success); color: #155724; }
         .res-wrong { background: #f8d7da; border-color: var(--error); color: #721c24; }
-        .correction { font-size: 13px; display: block; margin-top: 5px; font-weight: 600; }
+        .correction { font-size: 13px; display: block; margin-top: 5px; font-weight: 700; color: #2c3e50; }
+
+        /* Footer */
+        .footer { margin-top: 25px; font-size: 13px; color: rgba(255,255,255,0.8); font-weight: 300; }
     </style>
 </head>
 <body>
 
 <div class="quiz-container">
+    <div class="header-title">Formation Max_Adis</div>
+    <div class="header-subtitle">Domotique et Électronique</div>
+
     <div id="intro-screen">
-        <h1 style="text-align: center;">🚀 Quiz Final</h1>
-        <p style="text-align: center; color: #666;">Entrez vos informations pour commencer la validation du Pack Découverte.</p>
-        <input type="text" id="user-name" placeholder="Nom et Prénom" style="width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box;">
-        <input type="email" id="user-email" placeholder="Votre Email" style="width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box;">
-        <button onclick="startQuiz()">Commencer le Quiz</button>
+        <h3 style="color: #4a5568;">Bienvenue au Quiz Final</h3>
+        <p style="color: #718096; margin-bottom: 30px;">Identifiez-vous pour valider votre Pack Découverte</p>
+        <div class="input-group">
+            <input type="text" id="user-name" placeholder="Votre Nom et Prénom" required>
+        </div>
+        <div class="input-group">
+            <input type="email" id="user-email" placeholder="Votre Adresse Email" required>
+        </div>
+        <button class="main-btn" onclick="startQuiz()">Commencer la validation</button>
     </div>
 
     <div id="quiz-screen" class="hidden">
         <span class="step-text" id="step-counter">Question 1/10</span>
         <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
         
-        <h2 id="question-text">Chargement de la question...</h2>
+        <h2 id="question-text">Chargement...</h2>
         <div class="options" id="options-container"></div>
-        <button id="next-btn" onclick="nextQuestion()">Question suivante</button>
+        <button id="next-btn" class="main-btn" onclick="nextQuestion()">Question suivante</button>
     </div>
 
     <div id="result-screen" class="hidden">
-        <h2 style="text-align: center;">Fin du Module ! 🎉</h2>
-        <div id="score-display" style="text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 20px;"></div>
+        <h2 style="margin-top:0;">Résultats de Validation 🎉</h2>
+        <div id="score-display" style="font-size: 28px; font-weight: 800; margin-bottom: 25px;"></div>
         <div id="final-list"></div>
-        <p style="text-align: center; font-size: 12px; color: #888; margin-top: 20px;">Vos résultats ont été envoyés à Max Adis.</p>
     </div>
 </div>
 
+<div class="footer">Conçu par Max_Adis © 2026</div>
+
 <script>
     const questions = [
-        { q: "Qu’est-ce qu’une carte Arduino ?", options: ["Un support de LED", "Un petit ordinateur (microcontrôleur)", "Une batterie"], ans: 1 },
-        { q: "Quel domaine n'est PAS cité ?", options: ["Robotique", "Domotique", "Comptabilité"], ans: 2 },
-        { q: "Pourquoi choisir Arduino ?", options: ["Abordable et grande communauté", "C'est très cher", "Pas besoin de code"], ans: 0 },
-        { q: "La référence du Pack est :", options: ["Arduino MEGA", "Arduino UNO", "ESP32"], ans: 1 },
-        { q: "L'Arduino MEGA est idéal pour :", options: ["Projets simples", "Projets complexes", "Remplacer une pile"], ans: 1 },
-        { q: "Utilité de la Breadboard :", options: ["Souder", "Programmer", "Tester sans soudure"], ans: 2 },
-        { q: "La grande breadboard possède :", options: ["170 points", "830 points", "400 points"], ans: 1 },
-        { q: "Le bouton 'Téléverser' sert à :", options: ["Envoyer le code à la carte", "Eteindre la carte", "Effacer"], ans: 0 },
-        { q: "Rôle de la résistance :", options: ["Augmenter le courant", "Limiter le courant (protection)", "Changer la couleur"], ans: 1 },
-        { q: "delay(1000) signifie :", options: ["Attendre 10s", "Attendre 1 seconde", "Vitesse max"], ans: 1 }
+        { q: "Qu’est-ce qu’une carte Arduino ?", options: ["Un simple support de LED", "Un petit ordinateur (microcontrôleur)", "Une pile rechargeable"], ans: 1 },
+        { q: "Quel domaine n'est PAS cité dans le Pack ?", options: ["Robotique", "Domotique", "Comptabilité"], ans: 2 },
+        { q: "Pourquoi choisir Arduino ?", options: ["C'est gratuit et sans code", "Facile, abordable et grande communauté", "C'est le plus cher"], ans: 1 },
+        { q: "La référence du Pack est :", options: ["Arduino UNO", "Arduino MEGA", "ESP32"], ans: 0 },
+        { q: "L'Arduino MEGA est idéal pour :", options: ["Projets simples", "Remplacer une LED", "Projets complexes à nombreuses broches"], ans: 2 },
+        { q: "Utilité principale de la Breadboard :", options: ["Souder définitivement", "Tester des circuits sans soudure", "Calculer le courant"], ans: 1 },
+        { q: "La grande breadboard possède combien de points ?", options: ["170 points", "400 points", "830 points"], ans: 2 },
+        { q: "Le bouton 'Téléverser' (flèche) sert à :", options: ["Envoyer le code à la carte", "Supprimer le code", "Allumer la carte"], ans: 0 },
+        { q: "Rôle d'une résistance avant une LED :", options: ["Augmenter l'éclat", "Limiter le courant pour protéger la LED", "Éteindre le circuit"], ans: 1 },
+        { q: "L'instruction delay(1000) signifie :", options: ["Attendre 1 seconde", "Attendre 10 secondes", "Augmenter la vitesse"], ans: 0 }
     ];
 
     let currentIdx = 0;
@@ -80,11 +128,12 @@
     let userAnswers = [];
     let userName = "";
     let userEmail = "";
+    let selectedOption = null;
 
     function startQuiz() {
         userName = document.getElementById('user-name').value;
         userEmail = document.getElementById('user-email').value;
-        if(!userName || !userEmail) return alert("Veuillez remplir vos infos");
+        if(!userName || !userEmail) return alert("Veuillez remplir vos informations");
         
         document.getElementById('intro-screen').classList.add('hidden');
         document.getElementById('quiz-screen').classList.remove('hidden');
@@ -103,21 +152,18 @@
             const btn = document.createElement('div');
             btn.className = "option-btn";
             btn.innerText = opt;
-            btn.onclick = () => selectOption(i, btn);
+            btn.onclick = () => {
+                selectedOption = i;
+                document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+            };
             container.appendChild(btn);
         });
-        document.getElementById('next-btn').innerText = currentIdx === questions.length - 1 ? "Finaliser et Envoyer" : "Question suivante";
-    }
-
-    let selectedOption = null;
-    function selectOption(index, btn) {
-        selectedOption = index;
-        document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
+        document.getElementById('next-btn').innerText = currentIdx === questions.length - 1 ? "Envoyer mes résultats" : "Question suivante";
     }
 
     function nextQuestion() {
-        if(selectedOption === null) return alert("Choisissez une réponse !");
+        if(selectedOption === null) return alert("Veuillez choisir une réponse");
         
         userAnswers.push(selectedOption);
         if(selectedOption === questions[currentIdx].ans) score++;
@@ -132,17 +178,19 @@
     }
 
     function sendResults() {
-        // Envoi vers Formspree
         const formData = new FormData();
-        formData.append("Nom", userName);
+        formData.append("Étudiant", userName);
         formData.append("Email", userEmail);
-        formData.append("Score Final", score + "/10");
-        
+        formData.append("Score", score + "/10");
+
         fetch("https://formspree.io/f/mrebnnlk", {
             method: "POST",
             body: formData,
             headers: { 'Accept': 'application/json' }
         }).then(() => {
+            showFinalScreen();
+        }).catch(() => {
+            alert("Erreur d'envoi, mais vos résultats s'affichent.");
             showFinalScreen();
         });
     }
@@ -152,7 +200,7 @@
         document.getElementById('result-screen').classList.remove('hidden');
         
         const scoreDisplay = document.getElementById('score-display');
-        scoreDisplay.innerText = `Votre Score : ${score} / ${questions.length}`;
+        scoreDisplay.innerText = `${score} / ${questions.length}`;
         scoreDisplay.style.color = score >= 7 ? "var(--success)" : "var(--error)";
 
         const listContainer = document.getElementById('final-list');
@@ -162,7 +210,7 @@
             div.className = `result-item ${isCorrect ? 'res-correct' : 'res-wrong'}`;
             div.innerHTML = `
                 <strong>${i+1}. ${q.q}</strong><br>
-                Votre réponse : ${q.options[userAnswers[i]]}
+                <small>Votre réponse : ${q.options[userAnswers[i]]}</small>
                 ${!isCorrect ? `<span class="correction">Correction : ${q.options[q.ans]}</span>` : ''}
             `;
             listContainer.appendChild(div);
