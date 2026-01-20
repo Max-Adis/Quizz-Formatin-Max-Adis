@@ -115,6 +115,12 @@
             cursor: pointer;
             font-size: 16px;
             font-weight: 600;
+            transition: background 0.3s;
+        }
+        button#next-btn:hover,
+        button#submit-btn:hover,
+        #intro-screen button:hover {
+            background: #2a6bc5;
         }
 
         /* Intro : tout bien centré */
@@ -138,6 +144,7 @@
             border: 1px solid #ccc;
             box-sizing: border-box;
             text-align: center;
+            font-family: 'Poppins', sans-serif;
         }
 
         /* Styles de la liste finale */
@@ -174,6 +181,25 @@
         footer span {
             font-weight: 600;
         }
+
+        /* Message de statut */
+        .status-message {
+            text-align: center;
+            padding: 10px;
+            margin: 15px 0;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        .status-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
     </style>
 </head>
 <body>
@@ -189,8 +215,8 @@
         <div id="intro-screen">
             <h1>🚀 Quiz Final</h1>
             <p>Entrez vos informations pour commencer la validation du Pack Découverte.</p>
-            <input type="text" id="user-name" placeholder="Nom et Prénom">
-            <input type="email" id="user-email" placeholder="Votre Email / numéro">
+            <input type="text" id="user-name" placeholder="Nom et Prénom" required>
+            <input type="text" id="user-email" placeholder="Votre Email / numéro" required>
             <button onclick="startQuiz()">Commencer le Quiz</button>
         </div>
 
@@ -209,6 +235,7 @@
         <!-- Écran des résultats -->
         <div id="result-screen" class="hidden">
             <h2 style="text-align: center;">Fin du Module ! 🎉</h2>
+            <div id="status-message" class="status-message hidden"></div>
             <div id="score-display" style="text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 20px;"></div>
             <div id="final-list"></div>
             <p style="text-align: center; font-size: 12px; color: #888; margin-top: 20px;">
@@ -225,7 +252,7 @@
 
 <script>
     const questions = [
-        { q: "Qu’est-ce qu’une carte Arduino ?", options: ["Un support de LED", "Un petit ordinateur (microcontrôleur)", "Une batterie"], ans: 1 },
+        { q: "Qu'est-ce qu'une carte Arduino ?", options: ["Un support de LED", "Un petit ordinateur (microcontrôleur)", "Une batterie"], ans: 1 },
         { q: "Quel domaine n'appartient pas à la domotique ?", options: ["Robotique", "Domotique", "Comptabilité"], ans: 2 },
         { q: "Pourquoi choisir Arduino ?", options: ["Abordable et grande communauté", "C'est très cher", "Pas besoin de code"], ans: 0 },
         { q: "La référence du Pack est :", options: ["Arduino MEGA", "Arduino UNO", "ESP32"], ans: 1 },
@@ -243,11 +270,16 @@
     let userName = "";
     let userEmail = "";
     let selectedOption = null;
+    const WEB3FORMS_KEY = "338d1105-f503-440d-bcf1-2a83f1d4804d";
 
     function startQuiz() {
-        userName = document.getElementById('user-name').value;
-        userEmail = document.getElementById('user-email').value;
-        if (!userName || !userEmail) return alert("Veuillez remplir vos informations.");
+        userName = document.getElementById('user-name').value.trim();
+        userEmail = document.getElementById('user-email').value.trim();
+        
+        if (!userName || !userEmail) {
+            alert("Veuillez remplir tous les champs.");
+            return;
+        }
 
         document.getElementById('intro-screen').classList.add('hidden');
         document.getElementById('quiz-screen').classList.remove('hidden');
@@ -269,8 +301,12 @@
             btn.onclick = () => selectOption(i, btn);
             container.appendChild(btn);
         });
-        document.getElementById('next-btn').innerText =
-            currentIdx === questions.length - 1 ? "Finaliser et Envoyer" : "Question suivante";
+        
+        const nextBtn = document.getElementById('next-btn');
+        nextBtn.innerText = currentIdx === questions.length - 1 ? "Finaliser et Envoyer" : "Question suivante";
+        
+        // Réinitialiser la sélection
+        selectedOption = null;
     }
 
     function selectOption(index, btn) {
@@ -280,14 +316,18 @@
     }
 
     function nextQuestion() {
-        if (selectedOption === null) return alert("Choisissez une réponse !");
+        if (selectedOption === null) {
+            alert("Veuillez choisir une réponse !");
+            return;
+        }
 
         userAnswers.push(selectedOption);
-        if (selectedOption === questions[currentIdx].ans) score++;
+        if (selectedOption === questions[currentIdx].ans) {
+            score++;
+        }
 
         if (currentIdx < questions.length - 1) {
             currentIdx++;
-            selectedOption = null;
             showQuestion();
         } else {
             sendResults();
@@ -295,21 +335,64 @@
     }
 
     function sendResults() {
-        const formData = new FormData();
-        formData.append("Nom", userName);
-        formData.append("Email", userEmail);
-        formData.append("Score Final", score + "/10");
+        // Préparer les données pour Web3Forms
+        const formData = {
+            access_key: WEB3FORMS_KEY,
+            subject: `Résultats Quiz Pack Découverte - ${userName}`,
+            name: userName,
+            email: userEmail,
+            score_final: `${score}/${questions.length}`,
+            pourcentage: `${Math.round((score / questions.length) * 100)}%`,
+            date: new Date().toLocaleString('fr-FR'),
+            details: getResultsDetails()
+        };
 
-        fetch("https://formspree.io/f/mrebnnlk", {
-            method: "POST",
-            body: formData,
-            headers: { 'Accept': 'application/json' }
-        }).then(() => {
-            showFinalScreen();
-        }).catch(() => {
-            // Même si l'envoi échoue, on montre le résultat à l'apprenant
-            showFinalScreen();
+        // Afficher l'écran des résultats en attendant l'envoi
+        showFinalScreen();
+        
+        // Envoyer les résultats via Web3Forms
+        fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            const statusElement = document.getElementById('status-message');
+            if (data.success) {
+                statusElement.textContent = "✅ Résultats envoyés avec succès !";
+                statusElement.className = "status-message status-success";
+            } else {
+                statusElement.textContent = "⚠️ Envoi échoué, mais résultats sauvegardés localement.";
+                statusElement.className = "status-message status-error";
+            }
+            statusElement.classList.remove('hidden');
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            const statusElement = document.getElementById('status-message');
+            statusElement.textContent = "⚠️ Erreur de connexion, mais résultats sauvegardés localement.";
+            statusElement.className = "status-message status-error";
+            statusElement.classList.remove('hidden');
         });
+    }
+
+    function getResultsDetails() {
+        let details = "Détails des réponses:\n";
+        questions.forEach((q, i) => {
+            const isCorrect = userAnswers[i] === q.ans;
+            const userAnswer = q.options[userAnswers[i]] || "Non répondue";
+            const correctAnswer = q.options[q.ans];
+            
+            details += `\n${i + 1}. ${q.q}\n`;
+            details += `   Votre réponse: ${userAnswer}\n`;
+            details += `   Réponse correcte: ${correctAnswer}\n`;
+            details += `   Statut: ${isCorrect ? '✅ Correct' : '❌ Incorrect'}\n`;
+        });
+        return details;
     }
 
     function showFinalScreen() {
@@ -317,23 +400,40 @@
         document.getElementById('result-screen').classList.remove('hidden');
 
         const scoreDisplay = document.getElementById('score-display');
-        scoreDisplay.innerText = `Votre Score : ${score} / ${questions.length}`;
+        const percentage = Math.round((score / questions.length) * 100);
+        scoreDisplay.innerText = `Votre Score : ${score} / ${questions.length} (${percentage}%)`;
         scoreDisplay.style.color = score >= 7 ? "var(--success)" : "var(--error)";
 
         const listContainer = document.getElementById('final-list');
         listContainer.innerHTML = "";
+        
         questions.forEach((q, i) => {
             const isCorrect = userAnswers[i] === q.ans;
+            const userAnswerIndex = userAnswers[i];
+            const userAnswerText = userAnswerIndex !== undefined ? q.options[userAnswerIndex] : "Non répondue";
+            
             const div = document.createElement('div');
             div.className = `result-item ${isCorrect ? 'res-correct' : 'res-wrong'}`;
             div.innerHTML = `
                 <strong>${i + 1}. ${q.q}</strong><br>
-                Votre réponse : ${q.options[userAnswers[i]]}
+                Votre réponse : ${userAnswerText}
                 ${!isCorrect ? `<span class="correction">Correction : ${q.options[q.ans]}</span>` : ''}
             `;
             listContainer.appendChild(div);
         });
     }
+
+    // Permettre de démarrer le quiz avec la touche Entrée
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputs = document.querySelectorAll('#intro-screen input');
+        inputs.forEach(input => {
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    startQuiz();
+                }
+            });
+        });
+    });
 </script>
 
 </body>
